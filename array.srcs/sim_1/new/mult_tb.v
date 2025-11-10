@@ -4,11 +4,6 @@
 // Module Name: mult_tb
 // Description: 
 //   Testbench for 16-bit multipliers.
-//   It compares the output of the UUT (Unit Under Test) against a
-//   golden reference model (using Verilog's '*' operator).
-//
-//   To test your Wallace-Tree multiplier, you would instantiate it
-//   here as well and connect its inputs/outputs.
 //////////////////////////////////////////////////////////////////////////////////
 
 module mult_tb;
