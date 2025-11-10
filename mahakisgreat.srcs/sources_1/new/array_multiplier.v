@@ -2,13 +2,15 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 // Module Name: array_multiplier
-// Description: 
-//   16-bit baseline array multiplier (behavioral model).
-//   This implementation uses a generate loop to create a chain of 
-//   combinational adders, one for each partial product.
-//   This is NOT an efficient implementation and is intended as a 
-//   baseline for comparison against an optimized multiplier (e.g., Wallace-Tree).
-//   It will result in a long critical path.
+// Architecture:
+// This module implements a baseline 16x16 array multiplier. It is a
+// purely combinational design.
+//
+// Logic Flow:
+// 1. 16 partial products are generated (one for each bit of 'a').
+// 2. A sequential 'generate' loop creates a chain of 16 adders.
+// 3. Each adder stage adds the next (shifted) partial product to the
+//    accumulated sum from the previous stage.
 //////////////////////////////////////////////////////////////////////////////////
 
 module array_multiplier(
