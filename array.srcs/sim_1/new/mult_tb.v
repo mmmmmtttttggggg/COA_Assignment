@@ -1,141 +1,98 @@
 `timescale 1ns / 1ps
 
 //////////////////////////////////////////////////////////////////////////////////
-// Module Name: mult_tb
+// Module Name: tb_array
 // Description: 
-//   Testbench for 16-bit multipliers.
+//   Testbench for the 16-bit, combinational 'array_multiplier'.
+//   It uses the *exact same test vectors* as the tb_wallace file.
 //////////////////////////////////////////////////////////////////////////////////
 
-module mult_tb;
+module tb_array;
 
-  // Parameters
-  localparam WIDTH = 16;
-  localparam NUM_RANDOM_TESTS = 10;
-  
-  // Inputs to the UUT
-  reg [WIDTH-1:0] a_tb;
-  reg [WIDTH-1:0] b_tb;
-  
-  // Output from the UUT
-  wire [2*WIDTH-1:0] p_array_tb;
-  
-  // Golden reference
-  // We use a separate wire for the expected result for clarity.
-  // This uses the built-in Verilog multiplier.
-  wire [2*WIDTH-1:0] p_golden;
-  assign p_golden = $signed(a_tb) * $signed(b_tb); // Use signed for correctness if needed
-  // Note: If your design is unsigned, use:
-  // assign p_golden = a_tb * b_tb;
-  
-  
-  // Instantiate the Unit Under Test (UUT)
-  array_multiplier uut_array (
-    .a(a_tb),
-    .b(b_tb),
-    .p(p_array_tb)
-  );
-  
-  // --- Add your Wallace-Tree Instantiation here for testing ---
-  // wallace_multiplier uut_wallace (
-  //   .a(a_tb),
-  //   .b(b_tb),
-  //   .p(p_wallace_tb) // You'll need to declare p_wallace_tb
-  // );
-  
-  
-  // Testbench logic
-  integer i;
-  integer errors;
-  
-  initial begin
-    $display("--- Starting 16-bit Multiplier Testbench ---");
-    errors = 0;
-    
-    // Initialize inputs
-    a_tb = 0;
-    b_tb = 0;
-    #10;
-    
-    // Test 1: Zero test
-    $display("Test 1: Zero test");
-    a_tb = 16'h0000;
-    b_tb = 16'hABCD;
-    #10;
-    check_result();
-    
-    // Test 2: Zero test (other input)
-    $display("Test 2: Zero test (other input)");
-    a_tb = 16'h1234;
-    b_tb = 16'h0000;
-    #10;
-    check_result();
-    
-    // Test 3: Max value test (unsigned)
-    $display("Test 3: Max value test (unsigned)");
-    a_tb = 16'hFFFF;
-    b_tb = 16'hFFFF;
-    #10;
-    check_result();
-    
-    // Test 4: Small numbers
-    $display("Test 4: Small numbers");
-    a_tb = 16'd10;
-    b_tb = 16'd20;
-    #10;
-    check_result();
+    // --- Testbench Signals ---
+    reg  [15:0] A;
+    reg  [15:0] B;
 
-    // Test 5: One max, one small
-    $display("Test 5: One max, one small");
-    a_tb = 16'hFFFF;
-    b_tb = 16'd2;
-    #10;
-    check_result();
+    // Output from UUT
+    wire [31:0] P;
     
-    // Start of random tests
-    $display("--- Starting %0d Random Tests ---", NUM_RANDOM_TESTS);
-    for (i = 0; i < NUM_RANDOM_TESTS; i = i + 1) begin
-      a_tb = $random;
-      b_tb = $random;
-      #10;
-      check_result();
+    // Golden reference
+    wire [31:0] p_golden;
+    // We use a register for the golden value to match the
+    // stimulus timing correctly.
+    reg [31:0] p_golden_reg;
+    assign p_golden = {16'b0, A} * {16'b0, B};
+
+    // --- Instantiate the Unit Under Test (UUT) ---
+    array_multiplier uut (
+        .a(A), 
+        .b(B), 
+        .p(P)
+    );
+
+    // --- Testbench Globals ---
+    integer i;
+    integer error_count = 0;
+    
+    // Verification task
+    task check_result;
+        begin
+            // We must add a small delay for the
+            // combinational logic of the UUT to settle.
+            #1; 
+            if (P === p_golden) begin
+                $display("PASS: %d * %d = %d", A, B, P);
+            end else begin
+                $display("FAIL: %d * %d = %d (Expected: %d)", A, B, P, p_golden);
+                error_count = error_count + 1;
+            end
+        end
+    endtask
+
+    // --- Main Simulation Block (Stimulus) ---
+    // This uses the *exact same test vectors* as the wallace testbench
+    initial begin
+        $display("Starting 16-bit Array Multiplier Testbench...");
+        A = 0;
+        B = 0;
+        #20; // Initial delay
+        
+        // --- Apply Test Cases (one per 10ns) ---
+        $display("--- Running Edge Cases ---");
+        A = 16'd0;     B = 16'd12345; #10; check_result();
+        A = 16'd1;     B = 16'd54321; #10; check_result();
+        A = 16'hFFFF;  B = 16'hFFFF;  #10; check_result();
+        A = 16'hFFFF;  B = 16'd1;     #10; check_result();
+        A = 16'd256;   B = 16'd256;   #10; check_result();
+        A = 16'd10;    B = 16'd20;    #10; check_result();
+
+        // --- Running Random Test Cases ---
+        $display("--- Running 20 Random Unsigned Test Cases ---");
+        for (i = 0; i < 20; i = i + 1) begin
+            // Apply new inputs
+            A = $random;
+            B = $random;
+            // Wait 10ns (like the wallace TB)
+            #10;
+            // Check the result
+            check_result();
+        end
+        
+        // --- Summary ---
+        if (error_count == 0) begin
+            $display("All tests passed!");
+        end else begin
+            $display("Testbench FAILED with %d errors.", error_count);
+        end
+
+        $display("Testbench finished.");
+        $finish;
     end
     
-    $display("--- Testbench Finished ---");
-    if (errors == 0) begin
-      $display(">>> All tests PASSED <<<");
-    end else begin
-      $display(">>> %0d tests FAILED <<<", errors);
+    // VCD dump for waveform
+    initial begin
+        $dumpfile("tb_array.vcd");
+        $dumpvars(0, tb_array);
     end
-    
-    // VCD DUMP (for waveforms)
-    // Vivado simulator will automatically pick up signals,
-    // but this is good practice for other simulators.
-    $dumpfile("mult_tb.vcd");
-    $dumpvars(0, mult_tb);
-    
-    #20; // Allow final events to settle
-    $finish;
-  end
-  
-  // Verification task
-  task check_result;
-    begin
-      // Check Array Multiplier
-      if (p_array_tb === p_golden) begin
-        $display("  [PASS] Array: %h * %h = %h", a_tb, b_tb, p_array_tb);
-      end else begin
-        $display("  [FAIL] Array: %h * %h = %h (Expected: %h)", a_tb, b_tb, p_array_tb, p_golden);
-        errors = errors + 1;
-      end
-      
-      // --- Add your check for Wallace-Tree here ---
-      // if (p_wallace_tb === p_golden) begin
-      //   ...
-      // end else begin
-      //   ...
-      // end
-      
-    end
-  endtask
-  
+
 endmodule

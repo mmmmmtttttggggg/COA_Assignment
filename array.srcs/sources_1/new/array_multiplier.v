@@ -1,17 +1,16 @@
 `timescale 1ns / 1ps
 
-//////////////////////////////////////////////////////////////////////////////////
+//
 // Module Name: array_multiplier
-// Architecture:
+// Description:
 // This module implements a baseline 16x16 array multiplier. It is a
 // purely combinational design.
-//
-// Logic Flow:
+// Logic flow:
 // 1. 16 partial products are generated (one for each bit of 'a').
 // 2. A sequential 'generate' loop creates a chain of 16 adders.
 // 3. Each adder stage adds the next (shifted) partial product to the
 //    accumulated sum from the previous stage.
-//////////////////////////////////////////////////////////////////////////////////
+//
 
 module array_multiplier(
   input [15:0] a,
