@@ -1,6 +1,5 @@
 //
-//Description: A 16x16 pipelined Wallace-Tree Multiplier.
-// Architecture:
+//A 16x16 pipelined Wallace-Tree Multiplier.
 // optimized for speed (high clock frequency)
 // by implementing a deep 4-stage pipeline. It breaks the
 // multiplication logic into four smaller combinational stages, with
@@ -12,7 +11,7 @@
 //   - Stage 4: Final 32-bit Addition
 //
 // Module: csa_3_2
-// Description: A 3-to-2 compressor (32-bit Carry-Save Adder).
+// A 3-to-2 compressor (32-bit Carry-Save Adder).
 module csa_3_2 (
     input  [31:0] a,
     input  [31:0] b,
