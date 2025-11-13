@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////
+//
 //Description: A 16x16 pipelined Wallace-Tree Multiplier.
 // Architecture:
 // This design is heavily optimized for speed (high clock frequency)
@@ -10,7 +10,6 @@
 //   - Stage 2: CSA Reduction Tree (16 -> 6)
 //   - Stage 3: CSA Reduction Tree (6 -> 2)
 //   - Stage 4: Final 32-bit Addition
-//////////////////////////////////////////////////////////////////////////////////
 //
 // Module: csa_3_2
 // Description: A 3-to-2 compressor (32-bit Carry-Save Adder).
@@ -58,7 +57,7 @@ module wallace_16bit (
     output reg p_valid     // Signals that P is valid
 );
 
-    // --- Pipeline Registers ---
+    // Pipeline Registers
     // Stage 1 Registers (after PP Gen)
     reg [31:0] pp_reg[15:0];
 
@@ -69,10 +68,10 @@ module wallace_16bit (
     reg [31:0] final_sum_reg;
     reg [31:0] final_carry_reg;
 
-    // --- Validity Pipeline (Shift Register) ---
+    // Validity Pipeline (Shift Register)
     reg [3:0] valid_shifter;
 
-    // --- Combinational Logic for Stage 1 (PP Gen) ---
+    // Combinational Logic for Stage 1 (PP Gen)
     // Inputs: A, B (from module input)
     // Outputs: pp (wires)
     wire [31:0] pp[15:0];
@@ -83,7 +82,7 @@ module wallace_16bit (
         end
     endgenerate
 
-    // --- Combinational Logic for Stage 2 (CSA 16 -> 6) ---
+    // Combinational Logic for Stage 2 (CSA 16 -> 6) 
     // Inputs: pp_reg (from Stage 1 registers)
     // Outputs: s3_operands (wires)
     wire [31:0] s1[4:0], c1[4:0];
@@ -133,7 +132,7 @@ module wallace_16bit (
     assign s3_operands[4] = s2_operands[6];
     assign s3_operands[5] = s2_operands[7];
 
-    // --- Combinational Logic for Stage 3 (CSA 6 -> 2) ---
+    // Combinational Logic for Stage 3 (CSA 6 -> 2) 
     // Inputs: s3_operands_reg (from Stage 2 registers)
     // Outputs: final_sum, final_carry (wires)
     wire [31:0] s4[1:0], c4[1:0];
@@ -157,15 +156,15 @@ module wallace_16bit (
     wire [31:0] final_sum, final_carry;
     csa_3_2 csa6_0 (.a(s5_operands[0]), .b(s5_operands[1]), .c(s5_operands[2]), .s(final_sum), .c_out(final_carry));
 
-    // --- Combinational Logic for Stage 4 (Final Add) ---
+    // Combinational Logic for Stage 4 (Final Add) 
     // Inputs: final_sum_reg, final_carry_reg (from Stage 3 registers)
     // Outputs: p_wire (wire)
     wire [31:0] p_wire;
     assign p_wire = final_sum_reg + final_carry_reg;
 
 
-    // --- Pipeline Registering Logic ---
-    integer j; // <-- THIS WAS THE FIX: 'genvar j' was changed to 'integer j'
+    // Pipeline Registering Logic 
+    integer j; 
     always @(posedge clk) begin
         if (rst) begin
             // Reset all pipeline registers
@@ -181,7 +180,7 @@ module wallace_16bit (
             valid_shifter     <= 4'b0;
             p_valid           <= 1'b0;
         end else begin
-            // --- Clock Data Through Pipeline ---
+            // Clock Data Through Pipeline 
             
             // Stage 1 -> Register Bank 1
             // (A,B -> PP Gen -> pp_reg)
@@ -204,7 +203,7 @@ module wallace_16bit (
             // (final_..._reg -> Final Add -> P)
             P <= p_wire;
             
-            // --- Validity Pipeline ---
+            // Validity Pipeline
             // A '1' is fed in and propagates through the shifter,
             // taking 4 cycles to reach the end, matching the data pipeline latency.
             valid_shifter[0] <= 1'b1; // Assuming input is always valid when not in reset
