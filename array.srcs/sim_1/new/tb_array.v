@@ -21,14 +21,14 @@ module tb_array;
     reg [31:0] p_golden_reg;
     assign p_golden = {16'b0, A} * {16'b0, B};
 
-    // --- Instantiate the Unit Under Test (UUT) ---
+    // Instantiate the Unit Under Test (UUT) 
     array_multiplier uut (
         .a(A), 
         .b(B), 
         .p(P)
     );
 
-    // --- Testbench Globals ---
+    // Testbench Globals
     integer i;
     integer error_count = 0;
     
@@ -47,7 +47,7 @@ module tb_array;
         end
     endtask
 
-    // --- Main Simulation Block (Stimulus) ---
+    // Main Simulation Block (Stimulus)
     // This uses the *exact same test vectors* as the wallace testbench
     initial begin
         $display("Starting 16-bit Array Multiplier Testbench...");
@@ -55,8 +55,8 @@ module tb_array;
         B = 0;
         #20; // Initial delay
         
-        // --- Apply Test Cases (one per 10ns) ---
-        $display("--- Running Edge Cases ---");
+        // Apply Test Cases (one per 10ns) 
+        $display("Running Edge Cases");
         A = 16'd0;     B = 16'd12345; #10; check_result();
         A = 16'd1;     B = 16'd54321; #10; check_result();
         A = 16'hFFFF;  B = 16'hFFFF;  #10; check_result();
@@ -64,8 +64,8 @@ module tb_array;
         A = 16'd256;   B = 16'd256;   #10; check_result();
         A = 16'd10;    B = 16'd20;    #10; check_result();
 
-        // --- Running Random Test Cases ---
-        $display("--- Running 20 Random Unsigned Test Cases ---");
+        // Running Random Test Cases 
+        $display("Running 20 Random Unsigned Test Cases");
         for (i = 0; i < 20; i = i + 1) begin
             // Apply new inputs
             A = $random;
@@ -76,7 +76,7 @@ module tb_array;
             check_result();
         end
         
-        // --- Summary ---
+        // Summary 
         if (error_count == 0) begin
             $display("All tests passed!");
         end else begin
