@@ -3,7 +3,7 @@
 //
 // Module Name: tb_multiplier
 // Description: 
-// Testbench for the 16-bit, 4-stage pipelined 'wallace_16bit' multiplier.
+// Testbench for the 16-bit, 4-stage pipelined wallace multiplier.
 //
 
 module tb_multiplier;
