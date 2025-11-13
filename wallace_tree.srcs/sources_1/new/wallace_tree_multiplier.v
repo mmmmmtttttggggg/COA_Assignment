@@ -1,7 +1,7 @@
 //
 //Description: A 16x16 pipelined Wallace-Tree Multiplier.
 // Architecture:
-// This design is heavily optimized for speed (high clock frequency)
+// heavily optimized for speed (high clock frequency)
 // by implementing a deep 4-stage pipeline. It breaks the
 // multiplication logic into four smaller combinational stages, with
 // registers separating each stage.
