@@ -1,14 +1,14 @@
 `timescale 1ns / 1ps
 
-//////////////////////////////////////////////////////////////////////////////////
+//
 // Module Name: tb_multiplier
 // Description: 
 // Testbench for the 16-bit, 4-stage pipelined 'wallace_16bit' multiplier.
-//////////////////////////////////////////////////////////////////////////////////
+//
 
 module tb_multiplier;
 
-    // --- Testbench Signals ---
+    // Testbench Signals
     reg  [15:0] A;
     reg  [15:0] B;
     reg  clk;
@@ -17,7 +17,7 @@ module tb_multiplier;
     wire [31:0] P;
     wire p_valid;
 
-    // --- Instantiate the Unit Under Test (UUT) ---
+    // Instantiate the Unit Under Test (UUT)
     wallace_16bit uut (
         .clk(clk),
         .rst(rst),
@@ -27,11 +27,10 @@ module tb_multiplier;
         .p_valid(p_valid)
     );
 
-    // --- Testbench Globals ---
+    //  Testbench Globals
     integer i;
     integer error_count = 0;
-    
-    // --- "Golden Model" Pipeline ---
+   
     // This creates a 4-stage-deep pipeline for the inputs and the
     // expected result. This matches the 4-cycle latency of the UUT.
     localparam LATENCY = 4;
@@ -61,9 +60,7 @@ module tb_multiplier;
         end
     end
 
-    // --- Output Checker ---
-    // This block checks the UUT output against the
-    // "golden" pipeline output, but only when p_valid is high.
+    // Output Checker
     always @(posedge clk) begin
         // We check one cycle *after* p_valid goes high, to allow
         // $display to see the final registered values correctly.
@@ -79,13 +76,13 @@ module tb_multiplier;
         end
     end
 
-    // --- Clock Generation ---
+    // Clock Generation 
     initial begin
         clk = 0;
         forever #5 clk = ~clk; // 10ns period = 100MHz clock
     end
 
-    // --- Main Simulation Block (Stimulus) ---
+    // Main Simulation Block (Stimulus)
     initial begin
         $display("Starting 16-bit Pipelined Multiplier Testbench...");
         rst = 1;
@@ -95,8 +92,8 @@ module tb_multiplier;
         rst = 0;
         #10; // Wait for reset to de-assert
         
-        // --- Apply Test Cases (one per clock cycle) ---
-        $display("--- Running Edge Cases ---");
+        // Apply Test Cases (one per clock cycle) 
+        $display("Running Edge Cases");
         @(negedge clk); A = 16'd0;     B = 16'd12345; // Test Case 0
         @(negedge clk); A = 16'd1;     B = 16'd54321; // Test Case 1
         @(negedge clk); A = 16'hFFFF;  B = 16'hFFFF;  // Test Case 2
@@ -104,19 +101,19 @@ module tb_multiplier;
         @(negedge clk); A = 16'd256;   B = 16'd256;   // Test Case 4
         @(negedge clk); A = 16'd10;    B = 16'd20;    // Test Case 5
 
-        // --- Running Random Test Cases ---
-        $display("--- Running 20 Random Unsigned Test Cases ---");
+        // Running Random Test Cases 
+        $display("Running 20 Random Unsigned Test Cases");
         for (i = 0; i < 20; i = i + 1) begin
             @(negedge clk);
             A = $random;
             B = $random;
         end
         
-        // --- Wait for the last test case to exit the pipeline ---
+        // Wait for the last test case to exit the pipeline
         // We need to wait LATENCY cycles + a buffer
         repeat(LATENCY + 2) @(negedge clk);
         
-        // --- Summary ---
+        // Summary 
         if (error_count == 0) begin
             $display("All tests passed!");
         end else begin
