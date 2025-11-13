@@ -39,7 +39,6 @@ module tb_multiplier;
     reg [31:0] expected_pipe[LATENCY-1:0];
 
     // This block clocks the inputs and the expected result
-    // through the "golden" pipeline.
     always @(posedge clk) begin
         if (rst) begin
             for(i=0; i<LATENCY; i=i+1) begin
@@ -65,8 +64,6 @@ module tb_multiplier;
         // We check one cycle *after* p_valid goes high, to allow
         // $display to see the final registered values correctly.
         if (!rst && p_valid) begin
-            // The result at the *end* of the golden pipeline
-            // should match the UUT's output.
             if (P === expected_pipe[LATENCY-1]) begin
                 $display("PASS: %d * %d = %d", A_pipe[LATENCY-1], B_pipe[LATENCY-1], P);
             end else begin
