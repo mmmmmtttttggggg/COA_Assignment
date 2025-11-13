@@ -1,8 +1,7 @@
 `timescale 1ns / 1ps
 
 //
-// Module Name: tb_multiplier
-// Description: 
+// Module Name: tb_multiplier 
 // Testbench for the 16-bit, 4-stage pipelined wallace multiplier.
 //
 
